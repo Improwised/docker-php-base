@@ -52,7 +52,9 @@ ADD rootfs /
 
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf && \
     ln -s /etc/php7/php.ini /etc/php7/conf.d/php.ini && \
-    chown -R nginx:nginx /var/www
+    chown -R nginx:nginx /var/www && \
+    mkdir -p /var/www/storage/logs/ && \
+    touch /var/www/storage/logs/laravel.log /var/log/nginx/error.log /var/log/php7/error.log
 
 ##################  CONFIGURATION ENDS  ##################
 
