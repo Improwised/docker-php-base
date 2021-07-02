@@ -1,5 +1,5 @@
-FROM alpine:3.8
-MAINTAINER Rakshit Menpara <rakshit@improwised.com>
+FROM alpine:3.14
+LABEL MAINTAINER "Rakshit Menpara <rakshit@improwised.com>"
 
 ENV composer_hash 48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5
 ENV DOCKERIZE_VERSION v0.6.1
@@ -15,7 +15,7 @@ RUN set -ex \
     gmp-dev tar \
   && apk add --no-cache --virtual .run-deps \
     curl \
-    nodejs nodejs-npm \
+    nodejs npm \
     # PHP and extensions
     php7 php7-apcu php7-bcmath php7-dom php7-ctype php7-curl php7-exif php7-fileinfo \
     php7-fpm php7-gd php7-gmp php7-iconv php7-intl php7-json php7-mbstring php7-mcrypt \
