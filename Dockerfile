@@ -22,6 +22,7 @@ RUN set -ex \
     php7-mysqlnd php7-mysqli php7-opcache php7-openssl php7-pcntl php7-pdo php7-pdo_mysql \
     php7-phar php7-posix php7-session php7-simplexml php7-sockets php7-sqlite3 php7-tidy \
     php7-tokenizer php7-xml php7-xmlwriter php7-zip php7-zlib php7-redis php7-soap \
+    php7-pdo_pgsql \
     # Other dependencies
     mariadb-client sudo \
     # Miscellaneous packages
