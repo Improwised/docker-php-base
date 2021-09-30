@@ -7,7 +7,7 @@ Base container image for modern PHP applications built on top of Alpine Linux. T
 * Create a `Dockerfile` in root of your PHP project.
 
 ```dockerfile
-FROM deltasquare4/php-base:latest
+FROM improwised/php-base:latest
 
 # Copy Composer
 COPY ./composer.* /var/www/
