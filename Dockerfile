@@ -1,8 +1,7 @@
-FROM alpine:3.8
+FROM alpine:3.18
 MAINTAINER Rakshit Menpara <rakshit@improwised.com>
 
-ENV composer_hash 48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5
-ENV DOCKERIZE_VERSION v0.6.1
+ENV DOCKERIZE_VERSION v0.7.0
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
@@ -12,17 +11,17 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 # Install OS Dependencies
 RUN set -ex \
   && apk add --no-cache --virtual .build-deps \
-    gmp-dev tar \
-  && apk add --no-cache --virtual .run-deps \
+    autoconf automake build-base python3 gmp-dev \
     curl \
-    nodejs nodejs-npm \
+    nodejs npm \
+    tar \
+  && apk add --no-cache --virtual .run-deps \
     # PHP and extensions
-    php7 php7-apcu php7-bcmath php7-dom php7-ctype php7-curl php7-exif php7-fileinfo \
-    php7-fpm php7-gd php7-gmp php7-iconv php7-intl php7-json php7-mbstring php7-mcrypt \
-    php7-mysqlnd php7-mysqli php7-opcache php7-openssl php7-pcntl php7-pdo php7-pdo_mysql \
-    php7-phar php7-posix php7-session php7-simplexml php7-sockets php7-sqlite3 php7-tidy \
-    php7-tokenizer php7-xml php7-xmlwriter php7-zip php7-zlib php7-redis php7-soap \
-    php7-pdo_pgsql php7-xmlreader \
+    php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
+    php82-fpm php82-gd php82-gmp php82-iconv php82-intl php82-mbstring \
+    php82-mysqlnd php82-mysqli php82-opcache php82-openssl php82-pcntl php82-pecl-apcu php82-pdo php82-pdo_mysql \
+    php82-phar php82-posix php82-session php82-simplexml php82-sockets php82-sqlite3 php82-tidy \
+    php82-tokenizer php82-xml php82-xmlreader php82-xmlwriter php82-zip php82-pecl-redis php82-soap php82-sodium php82-pdo_sqlite php82-pdo_pgsql php82-pgsql \
     # Other dependencies
     mariadb-client sudo \
     # Miscellaneous packages
@@ -38,10 +37,11 @@ RUN set -ex \
     && rm -Rf /var/www/* \
     && rm -Rf /etc/nginx/nginx.conf \
   # Composer
-  && php7 -r "copy('https://raw.githubusercontent.com/composer/getcomposer.org/cb19f2aa3aeaa2006c0cd69a7ef011eb31463067/web/installer', 'composer-setup.php');" \
-    && php7 -r "if (hash_file('SHA384', 'composer-setup.php') === '${composer_hash}') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
-    && php7 composer-setup.php --install-dir=/usr/bin --filename=composer \
-    && php7 -r "unlink('composer-setup.php');" \
+  && wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig \
+    && php82 -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php82 -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
+    && php82 composer-setup.php --install-dir=/usr/bin --filename=composer \
+    && php82 -r "unlink('composer-setup.php'); unlink('installer.sig');" \
   # Cleanup
   && apk del .build-deps
 
@@ -52,10 +52,11 @@ RUN set -ex \
 ADD rootfs /
 
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf && \
-    ln -s /etc/php7/php.ini /etc/php7/conf.d/php.ini && \
+    ln -s /etc/php82/php.ini /etc/php82/conf.d/php.ini && \
+    ln -s /usr/bin/php82 /usr/bin/php && \
     chown -R nginx:nginx /var/www && \
     mkdir -p /var/www/storage/logs/ && \
-    touch /var/www/storage/logs/laravel.log /var/log/nginx/error.log /var/log/php7/error.log
+    touch /var/www/storage/logs/laravel.log /var/log/nginx/error.log /var/log/php82/error.log
 
 ##################  CONFIGURATION ENDS  ##################
 
@@ -64,12 +65,12 @@ EXPOSE 443 80
 WORKDIR /var/www
 
 ENTRYPOINT ["dockerize", \
-    "-template", "/etc/php7/php.ini:/etc/php7/php.ini", \
-    "-template", "/etc/php7/php-fpm.conf:/etc/php7/php-fpm.conf", \
-    "-template", "/etc/php7/php-fpm.d:/etc/php7/php-fpm.d", \
+    "-template", "/etc/php82/php.ini:/etc/php82/php.ini", \
+    "-template", "/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf", \
+    "-template", "/etc/php82/php-fpm.d:/etc/php82/php-fpm.d", \
     "-stdout", "/var/www/storage/logs/laravel.log", \
     "-stdout", "/var/log/nginx/error.log", \
-    "-stdout", "/var/log/php7/error.log", \
+    "-stdout", "/var/log/php82/error.log", \
     "-poll"]
 
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
