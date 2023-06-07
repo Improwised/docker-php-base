@@ -1,0 +1,3 @@
+#!/usr/bin/execlineb -P
+
+/usr/sbin/php-fpm82 --nodaemonize --fpm-config /etc/php82/php-fpm.conf

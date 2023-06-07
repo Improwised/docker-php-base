@@ -2,6 +2,11 @@ FROM alpine:3.18
 MAINTAINER Rakshit Menpara <rakshit@improwised.com>
 
 ENV DOCKERIZE_VERSION v0.6.1
+# set version for s6 overlay
+ARG S6_OVERLAY_VERSION="3.1.5.0"
+ARG S6_OVERLAY_ARCH="x86_64"
+
+
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
@@ -25,7 +30,7 @@ RUN set -ex \
     # Other dependencies
     mariadb-client sudo shadow \
     # Miscellaneous packages
-    bash ca-certificates dialog git libjpeg libpng-dev openssh-client supervisor vim wget \
+    bash ca-certificates dialog git libjpeg libpng-dev openssh-client vim wget shadow \
     # Nginx
     nginx \
     # Create directories
@@ -33,7 +38,6 @@ RUN set -ex \
     && mkdir -p /run/nginx \
     && mkdir -p /etc/nginx/sites-available \
     && mkdir -p /etc/nginx/sites-enabled \
-    && mkdir -p /var/log/supervisor \
     && rm -Rf /var/www/* \
     && rm -Rf /etc/nginx/nginx.conf \
   # Composer
@@ -46,6 +50,18 @@ RUN set -ex \
   && apk del .build-deps
 
 ##################  INSTALLATION ENDS  ##################
+
+# add s6 overlay
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz
+
+# add s6 optional symlinks
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks-noarch.tar.xz
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
 
 ##################  CONFIGURATION STARTS  ##################
 
@@ -64,13 +80,4 @@ EXPOSE 443 80
 
 WORKDIR /var/www
 
-ENTRYPOINT ["dockerize", \
-    "-template", "/etc/php82/php.ini:/etc/php82/php.ini", \
-    "-template", "/etc/php82/php-fpm.conf:/etc/php82/php-fpm.conf", \
-    "-template", "/etc/php82/php-fpm.d:/etc/php82/php-fpm.d", \
-    "-stdout", "/var/www/storage/logs/laravel.log", \
-    "-stdout", "/var/log/nginx/error.log", \
-    "-stdout", "/var/log/php82/error.log", \
-    "-poll"]
-
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
+ENTRYPOINT ["/init"]

@@ -1,0 +1,3 @@
+#!/usr/bin/execlineb -P
+
+dockerize -stdout /var/www/storage/logs/laravel.log -stdout /var/log/nginx/error.log -stdout /var/log/php82/error.log -poll
