@@ -23,7 +23,7 @@ RUN set -ex \
     php82-phar php82-posix php82-session php82-simplexml php82-sockets php82-sqlite3 php82-tidy \
     php82-tokenizer php82-xml php82-xmlreader php82-xmlwriter php82-zip php82-pecl-redis php82-soap php82-sodium php82-pdo_sqlite php82-pdo_pgsql php82-pgsql \
     # Other dependencies
-    mariadb-client sudo \
+    mariadb-client sudo shadow \
     # Miscellaneous packages
     bash ca-certificates dialog git libjpeg libpng-dev openssh-client supervisor vim wget \
     # Nginx
