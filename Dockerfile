@@ -71,6 +71,8 @@ RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/defau
     ln -s /etc/php82/php.ini /etc/php82/conf.d/php.ini && \
     ln -s /usr/bin/php82 /usr/bin/php && \
     chown -R nginx:nginx /var/www && \
+    chmod 755 /etc/s6-overlay/s6-rc.d/*/run && \
+    chmod 755 /etc/s6-overlay/s6-rc.d/*/up && \
     mkdir -p /var/www/storage/logs/ && \
     touch /var/www/storage/logs/laravel.log /var/log/nginx/error.log /var/log/php82/error.log
 
