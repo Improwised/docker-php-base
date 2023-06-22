@@ -1,7 +1,7 @@
 FROM alpine:3.18
 MAINTAINER Rakshit Menpara <rakshit@improwised.com>
 
-ENV DOCKERIZE_VERSION v0.7.0
+ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
@@ -13,15 +13,15 @@ RUN set -ex \
   && apk add --no-cache --virtual .build-deps \
     autoconf automake build-base python3 gmp-dev \
     curl \
-    nodejs npm \
     tar \
   && apk add --no-cache --virtual .run-deps \
+    nodejs yarn \
     # PHP and extensions
     php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
     php82-fpm php82-gd php82-gmp php82-iconv php82-intl php82-mbstring \
     php82-mysqlnd php82-mysqli php82-opcache php82-openssl php82-pcntl php82-pecl-apcu php82-pdo php82-pdo_mysql \
     php82-phar php82-posix php82-session php82-simplexml php82-sockets php82-sqlite3 php82-tidy \
-    php82-tokenizer php82-xml php82-xmlreader php82-xmlwriter php82-zip php82-pecl-redis php82-soap php82-sodium php82-pdo_sqlite php82-pdo_pgsql php82-pgsql \
+    php82-tokenizer php82-xml php82-xmlreader php82-xmlwriter php82-zip php82-pecl-xdebug php82-pecl-redis php82-soap php82-sodium php82-pdo_sqlite php82-pdo_pgsql php82-pgsql \
     # Other dependencies
     mariadb-client sudo shadow \
     # Miscellaneous packages
