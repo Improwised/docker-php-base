@@ -15,7 +15,7 @@ RUN set -ex \
     curl \
     tar \
   && apk add --no-cache --virtual .run-deps \
-    nodejs yarn \
+    nodejs npm \
     # PHP and extensions
     php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
     php82-fpm php82-gd php82-gmp php82-iconv php82-intl php82-mbstring \
