@@ -32,4 +32,6 @@ jobs:
           context: .
           push: false
           tags: improwised/php-base:8.2-s6-${{ steps.vars.outputs.sha_short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
         timeout-minutes: 5
