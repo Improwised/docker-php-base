@@ -1,5 +1,4 @@
 FROM alpine:3.18
-MAINTAINER Rakshit Menpara <rakshit@improwised.com>
 
 ENV DOCKERIZE_VERSION v0.6.1
 # set version for s6 overlay
