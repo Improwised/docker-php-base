@@ -3,7 +3,10 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - s6-php82
+      - "7.4"
+      - "7.4-s6"
+      - "8.2"
+      - "8.2-s6"
       - fix-ci
 
 jobs:
@@ -24,14 +27,14 @@ jobs:
         timeout-minutes: 5
       - name: Create Tag
         id: tag
-        run: echo "tag=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "tag=${{ github.ref_name }}-$(git rev-parse --short HEAD)-$(date +%s)" >> $GITHUB_OUTPUT
         timeout-minutes: 5
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: false
-          tags: improwised/php-base:8.2-s6-${{ steps.tag.outputs.tag }}
+          tags: improwised/php-base:${{ steps.tag.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
         timeout-minutes: 5
