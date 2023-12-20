@@ -4,7 +4,9 @@ ENV DOCKERIZE_VERSION v0.6.1
 # set version for s6 overlay
 ARG S6_OVERLAY_VERSION="3.1.5.0"
 ARG S6_OVERLAY_ARCH="x86_64"
-
+ENV UID=100 \
+    GID=101 \
+    FPM_LOG_LEVEL=warning
 
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
