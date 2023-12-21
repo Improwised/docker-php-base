@@ -1,5 +1,4 @@
 FROM alpine:3.18
-MAINTAINER Rakshit Menpara <rakshit@improwised.com>
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -10,11 +9,11 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 # Install OS Dependencies
 RUN set -ex \
-  && apk add --no-cache --virtual .build-deps \
+    && apk add --no-cache --virtual .build-deps \
     autoconf automake build-base python3 gmp-dev \
     curl \
     tar \
-  && apk add --no-cache --virtual .run-deps \
+    && apk add --no-cache --virtual .run-deps \
     nodejs npm \
     # PHP and extensions
     php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
@@ -29,21 +28,21 @@ RUN set -ex \
     # Nginx
     nginx \
     # Create directories
-  && mkdir -p /etc/nginx \
+    && mkdir -p /etc/nginx \
     && mkdir -p /run/nginx \
     && mkdir -p /etc/nginx/sites-available \
     && mkdir -p /etc/nginx/sites-enabled \
     && mkdir -p /var/log/supervisor \
     && rm -Rf /var/www/* \
     && rm -Rf /etc/nginx/nginx.conf \
-  # Composer
-  && wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig \
+    # Composer
+    && wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig \
     && php82 -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php82 -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
     && php82 composer-setup.php --install-dir=/usr/bin --filename=composer \
     && php82 -r "unlink('composer-setup.php'); unlink('installer.sig');" \
-  # Cleanup
-  && apk del .build-deps
+    # Cleanup
+    && apk del .build-deps
 
 ##################  INSTALLATION ENDS  ##################
 

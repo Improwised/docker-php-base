@@ -3,29 +3,34 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - php82
+      - "8.2"
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with: 
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    
-    - name: Get Short SHA
-      id: vars
-      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: improwised/php-base:8.2-${{ steps.vars.outputs.sha_short }}   
+      - name: Checkout code
+        uses: actions/checkout@v4
+        timeout-minutes: 5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        timeout-minutes: 5
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        timeout-minutes: 5
+      - name: Create Tag
+        id: tag
+        run: echo "tag=${{ github.ref_name }}-$(git rev-parse --short HEAD)-$(date +%s)" >> $GITHUB_OUTPUT
+        timeout-minutes: 5
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: improwised/php-base:${{ steps.tag.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        timeout-minutes: 5
