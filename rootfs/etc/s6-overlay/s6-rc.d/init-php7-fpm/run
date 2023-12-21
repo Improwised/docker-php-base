@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# add environment variable into files
+dockerize -template /etc/php7/php.ini:/etc/php7/php.ini -template /etc/php7/php-fpm.conf:/etc/php7/php-fpm.conf -template /etc/php7/php-fpm.d:/etc/php7/php-fpm.d

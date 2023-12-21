@@ -1,6 +1,11 @@
 FROM alpine:3.14
-LABEL MAINTAINER "Rakshit Menpara <rakshit@improwised.com>"
 
+ARG S6_OVERLAY_VERSION="3.1.5.0"
+ARG S6_OVERLAY_ARCH="x86_64"
+
+ENV UID=100 \
+    GID=101 \
+    FPM_LOG_LEVEL=warning
 ENV composer_hash 48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -26,7 +31,7 @@ RUN set -ex \
     # Other dependencies
     mariadb-client sudo \
     # Miscellaneous packages
-    bash ca-certificates dialog git libjpeg libpng-dev openssh-client supervisor vim wget \
+    bash ca-certificates dialog git libjpeg libpng-dev openssh-client shadow vim wget \
     # Nginx
     nginx \
     # Create directories
@@ -34,7 +39,6 @@ RUN set -ex \
     && mkdir -p /run/nginx \
     && mkdir -p /etc/nginx/sites-available \
     && mkdir -p /etc/nginx/sites-enabled \
-    && mkdir -p /var/log/supervisor \
     && rm -Rf /var/www/* \
     && rm -Rf /etc/nginx/nginx.conf \
   # Composer
@@ -47,6 +51,18 @@ RUN set -ex \
 
 ##################  INSTALLATION ENDS  ##################
 
+# add s6 overlay
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz
+
+# add s6 optional symlinks
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks-noarch.tar.xz
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
+
 ##################  CONFIGURATION STARTS  ##################
 
 ADD rootfs /
@@ -54,6 +70,8 @@ ADD rootfs /
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf && \
     ln -s /etc/php7/php.ini /etc/php7/conf.d/php.ini && \
     chown -R nginx:nginx /var/www && \
+    chmod 755 /etc/s6-overlay/s6-rc.d/*/run && \
+    chmod 755 /etc/s6-overlay/s6-rc.d/*/up && \
     mkdir -p /var/www/storage/logs/ && \
     touch /var/www/storage/logs/laravel.log /var/log/nginx/error.log /var/log/php7/error.log
 
@@ -63,13 +81,4 @@ EXPOSE 443 80
 
 WORKDIR /var/www
 
-ENTRYPOINT ["dockerize", \
-    "-template", "/etc/php7/php.ini:/etc/php7/php.ini", \
-    "-template", "/etc/php7/php-fpm.conf:/etc/php7/php-fpm.conf", \
-    "-template", "/etc/php7/php-fpm.d:/etc/php7/php-fpm.d", \
-    "-stdout", "/var/www/storage/logs/laravel.log", \
-    "-stdout", "/var/log/nginx/error.log", \
-    "-stdout", "/var/log/php7/error.log", \
-    "-poll"]
-
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
+ENTRYPOINT ["/init"]

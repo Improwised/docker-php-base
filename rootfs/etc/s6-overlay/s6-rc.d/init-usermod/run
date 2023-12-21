@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+UID=${UID:-911}
+GID=${GID:-911}
+
+echo "User Id $UID, Group id $GID"
+usermod -u "$UID" nginx && groupmod -g "$GID" nginx
