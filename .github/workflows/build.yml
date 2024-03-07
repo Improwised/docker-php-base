@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "8.2"
+      - "8.1"
 
 jobs:
   build-and-push:
