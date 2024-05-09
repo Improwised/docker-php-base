@@ -1,4 +1,4 @@
-FROM alpine:3.18
+FROM alpine:edge
 
 ENV DOCKERIZE_VERSION v0.6.1
 # set version for s6 overlay
@@ -20,14 +20,15 @@ RUN set -ex \
     autoconf automake build-base python3 gmp-dev \
     curl \
     tar \
-  && apk add --no-cache --virtual .run-deps \
-    nodejs npm \
+    && apk add --no-cache --virtual .run-deps \
+    nodejs npm libavif \
+    && apk --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/edge/community add \
     # PHP and extensions
-    php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
-    php82-fpm php82-gd php82-gmp php82-iconv php82-intl php82-mbstring \
-    php82-mysqlnd php82-mysqli php82-opcache php82-openssl php82-pcntl php82-pecl-apcu php82-pdo php82-pdo_mysql \
-    php82-phar php82-posix php82-session php82-simplexml php82-sockets php82-sqlite3 php82-tidy \
-    php82-tokenizer php82-xml php82-xmlreader php82-xmlwriter php82-zip php82-pecl-xdebug php82-pecl-redis php82-soap php82-sodium php82-pdo_sqlite php82-pdo_pgsql php82-pgsql \
+    php83 php83-bcmath php83-ctype php83-curl php83-dom php83-exif php83-fileinfo \
+    php83-fpm php83-gd php83-gmp php83-iconv php83-intl php83-mbstring \
+    php83-mysqlnd php83-mysqli php83-opcache php83-openssl php83-pcntl php83-pecl-apcu php83-pdo php83-pdo_mysql \
+    php83-phar php83-posix php83-session php83-simplexml php83-sockets php83-sqlite3 php83-tidy \
+    php83-tokenizer php83-xml php83-xmlreader php83-xmlwriter php83-zip php83-pecl-xdebug php83-pecl-redis php83-soap php83-sodium php83-pdo_sqlite php83-pdo_pgsql php83-pgsql \
     # Other dependencies
     mariadb-client sudo shadow \
     # Miscellaneous packages
@@ -43,10 +44,10 @@ RUN set -ex \
     && rm -Rf /etc/nginx/nginx.conf \
   # Composer
   && wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig \
-    && php82 -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && php82 -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
-    && php82 composer-setup.php --install-dir=/usr/bin --filename=composer \
-    && php82 -r "unlink('composer-setup.php'); unlink('installer.sig');" \
+    && php83 -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php83 -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
+    && php83 composer-setup.php --install-dir=/usr/bin --filename=composer \
+    && php83 -r "unlink('composer-setup.php'); unlink('installer.sig');" \
   # Cleanup
   && apk del .build-deps
 
@@ -69,13 +70,14 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
 ADD rootfs /
 
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf && \
-    ln -s /etc/php82/php.ini /etc/php82/conf.d/php.ini && \
-    ln -s /usr/bin/php82 /usr/bin/php && \
+    ln -s /etc/php83/php.ini /etc/php83/conf.d/php.ini && \
+    rm -rf /usr/bin/php && \
+    ln -s /usr/bin/php83 /usr/bin/php && \
     chown -R nginx:nginx /var/www && \
     chmod 755 /etc/s6-overlay/s6-rc.d/*/run && \
     chmod 755 /etc/s6-overlay/s6-rc.d/*/up && \
     mkdir -p /var/www/storage/logs/ && \
-    touch /var/www/storage/logs/laravel.log /var/log/nginx/error.log /var/log/php82/error.log
+    touch /var/www/storage/logs/laravel.log /var/log/nginx/error.log /var/log/php83/error.log
 
 ##################  CONFIGURATION ENDS  ##################
 
