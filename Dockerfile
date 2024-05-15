@@ -30,7 +30,7 @@ RUN set -ex \
     php83-phar php83-posix php83-session php83-simplexml php83-sockets php83-sqlite3 php83-tidy \
     php83-tokenizer php83-xml php83-xmlreader php83-xmlwriter php83-zip php83-pecl-xdebug php83-pecl-redis php83-soap php83-sodium php83-pdo_sqlite php83-pdo_pgsql php83-pgsql \
     # Other dependencies
-    mariadb-client sudo shadow \
+    mariadb-client sudo \
     # Miscellaneous packages
     bash ca-certificates dialog git libjpeg libpng-dev openssh-client vim wget shadow \
     # Nginx
