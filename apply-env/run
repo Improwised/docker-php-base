@@ -1,0 +1,42 @@
+#!/usr/bin/with-contenv bash
+
+key=(VITE_APP_NAME VITE_PUSHER_APP_KEY VITE_PUSHER_APP_CLUSTER VITE_CURRENCY_SYMBOL VITE_BARCODE_COUNT_THRESHOLD_FOR_ASYNC_PRINT VITE_MAXIMUM_LAST_VISITED_PAGES)
+
+#------- function for removing slash
+function sed_for_slash() {
+    val=$1
+    output=$(echo $val | sed 's/\//\\\//g')
+    echo $output
+}
+
+# Function for escaping double quotes
+function sed_for_quotes() {
+    val=$1
+    output=$(echo $val | sed 's/"/\\\"/g')
+    echo $output
+}
+
+# Loop through keys and values
+keyname=()
+value=()
+for element in "${key[@]}"; do
+    name=$(echo "$element" | tr '[:lower:]' '[:upper:]')
+    if [ -n "${!name}" ]; then
+        val=$(echo "${!name}")
+        keyname+=("$element")
+        value+=("$val")
+    fi
+done
+
+dirpath=$HTML_PATH
+find "$dirpath" -type f | while read -r file; do
+    if [ -f "$file" ]; then                     
+        for ((i=0; i<${#keyname[@]}; i++)); do  
+            value_f=$(sed_for_slash "${value[i]}")
+            value_f=$(sed_for_quotes "$value_f")  
+            final_replacement="${keyname[i]}":"\"$value_f\""       
+            sed -i "s/${keyname[i]}_VALUE/$value_f/g" "$file"
+            sed -i "s/${keyname[i]}:\"[^\"]*\"/$final_replacement/g" "$file"
+        done                                                                
+    fi                                                                      
+done 
