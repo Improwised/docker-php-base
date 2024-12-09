@@ -38,4 +38,5 @@ jobs:
           tags: improwised/php-base:${{ steps.tag.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
         timeout-minutes: 5
