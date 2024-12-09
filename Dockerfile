@@ -1,6 +1,5 @@
 FROM alpine:3.21
 
-ENV DOCKERIZE_VERSION=v0.8.0
 # set version for s6 overlay
 ARG S6_OVERLAY_VERSION="3.1.5.0"
 # set TARTGETARCH and S6_ARCH to map the s6-overlay arch naming conventions with the docker (TARGETARCH)
@@ -16,7 +15,7 @@ RUN set -eux \
   && if [ "${TARGETARCH}" = "arm64" ]; then \
   DOCKERIZE_URL="https://github.com/jwilder/dockerize/releases/download/v0.8.0/dockerize-darwin-arm64-v0.8.0.tar.gz"; \
   elif [ "${TARGETARCH}" = "amd64" ]; then \
-  DOCKERIZE_URL="https://github.com/jwilder/dockerize/releases/download/v0.8.0/dockerize-alpine-linux-amd64-v0.8.0.tar.gz"; \
+  DOCKERIZE_URL="https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-alpine-linux-amd64-v0.6.1.tar.gz"; \
   else \
   echo "Unsupported architecture: ${TARGETARCH}"; \
   exit 1; \
