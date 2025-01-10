@@ -20,7 +20,7 @@ RUN set -ex \
     autoconf automake build-base python3 gmp-dev \
     tar \
   && apk add --no-cache --virtual .run-deps \
-    nodejs npm curl \
+    nodejs npm curl perl perl-utils make \
     # PHP and extensions
     php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
     php82-fpm php82-gd php82-gmp php82-iconv php82-intl php82-mbstring \
@@ -46,6 +46,14 @@ RUN set -ex \
     && php82 -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
     && php82 composer-setup.php --install-dir=/usr/bin --filename=composer \
     && php82 -r "unlink('composer-setup.php'); unlink('installer.sig');" \
+    #Install exiftool
+    && curl -LO https://exiftool.org/Image-ExifTool-13.10.tar.gz \
+    && tar -xzf Image-ExifTool-13.10.tar.gz \
+    && cd Image-ExifTool-13.10 \
+    && perl Makefile.PL \
+    && make install \
+    && cd .. \
+    && rm -rf Image-ExifTool-13.10 Image-ExifTool-13.10.tar.gz \
   # Cleanup
   && apk del .build-deps
 
