@@ -18,10 +18,9 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 RUN set -ex \
   && apk add --no-cache --virtual .build-deps \
     autoconf automake build-base python3 gmp-dev \
-    curl \
     tar \
   && apk add --no-cache --virtual .run-deps \
-    nodejs npm \
+    nodejs npm curl \
     # PHP and extensions
     php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
     php82-fpm php82-gd php82-gmp php82-iconv php82-intl php82-mbstring \
@@ -29,7 +28,7 @@ RUN set -ex \
     php82-phar php82-posix php82-session php82-simplexml php82-sockets php82-sqlite3 php82-tidy \
     php82-tokenizer php82-xml php82-xmlreader php82-xmlwriter php82-zip php82-pecl-xdebug php82-pecl-redis php82-soap php82-sodium php82-pdo_sqlite php82-pdo_pgsql php82-pgsql \
     # Other dependencies
-    mariadb-client sudo shadow \
+    mariadb-client sudo \
     # Miscellaneous packages
     bash ca-certificates dialog git libjpeg libpng-dev openssh-client vim wget shadow \
     # Nginx
