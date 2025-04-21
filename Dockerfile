@@ -16,10 +16,10 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 # Install OS Dependencies
 RUN set -ex \
-  && apk add --no-cache --virtual .build-deps \
+    && apk add --no-cache --virtual .build-deps \
     autoconf automake build-base python3 gmp-dev \
     tar \
-  && apk add --no-cache --virtual .run-deps \
+    && apk add --no-cache --virtual .run-deps \
     nodejs npm curl perl perl-utils make \
     # PHP and extensions
     php82 php82-bcmath php82-ctype php82-curl php82-dom php82-exif php82-fileinfo \
@@ -34,14 +34,14 @@ RUN set -ex \
     # Nginx
     nginx \
     # Create directories
-  && mkdir -p /etc/nginx \
+    && mkdir -p /etc/nginx \
     && mkdir -p /run/nginx \
     && mkdir -p /etc/nginx/sites-available \
     && mkdir -p /etc/nginx/sites-enabled \
     && rm -Rf /var/www/* \
     && rm -Rf /etc/nginx/nginx.conf \
-  # Composer
-  && wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig \
+    # Composer
+    && wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig \
     && php82 -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php82 -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
     && php82 composer-setup.php --install-dir=/usr/bin --filename=composer \
@@ -54,8 +54,21 @@ RUN set -ex \
     && make install \
     && cd .. \
     && rm -rf Image-ExifTool-13.10 Image-ExifTool-13.10.tar.gz \
-  # Cleanup
-  && apk del .build-deps
+    # Cleanup
+    && apk del .build-deps
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Set environment variables for pnpm
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+# Ensure the PATH is set correctly
+RUN echo "export PATH=$PNPM_HOME:\$PATH" >> /etc/profile \
+    && source /etc/profile \
+    && pnpm config set global-bin-dir $PNPM_HOME \
+    && pnpm --version
 
 ##################  INSTALLATION ENDS  ##################
 
